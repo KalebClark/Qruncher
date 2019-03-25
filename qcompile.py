@@ -6,7 +6,7 @@ import json
 """ =================================== QCConfig Class  =======================
 =========================================================================== """
 class QCConfig:
-    config = {"builders": [], "maps": []}
+    config = {"config": {}, "builders": [], "maps": []}
 
     def __init__(self, config_files):
         """ QCConfig Init ======================= """
@@ -31,6 +31,14 @@ class QCConfig:
                 "game": "",
                 "source": "",
                 "dest": ""
+            }
+        elif pType == 'config':
+            scaffold = {
+                "tool_path": "",
+                "engines": [
+                    {"name":'mark_v',"game":'id1',"path":'',"base_dir":''},
+                    {"name":'quakespasm',"game":'id1',"path":'',"base_dir":''}
+                ]
             }
 
         if not self.profileExists(pType, name):
@@ -67,7 +75,7 @@ class QCConfig:
                 config_json = open(cfg['file'], 'w+')
                 json.dump(self.config[cfg['name']],config_json, indent=2, separators=(',', ': '))
             except FileNotFoundError as e:
-                print("Failed to open file for writing")
+                print("Failed to open file for writing" + str(e))
 
     def listBuilders(self):
         """ List all build profiles """
@@ -111,13 +119,12 @@ class QCompile:
             self.help()
             sys.exit(0)
 
-        # Check to see if argv[1] is a split (should alwyas be...)
+        # Check to see if argv[1] is a split 
         if re.match(".*:.*", sys.argv[1]):
             self.command = sys.argv[1].split(':')[0]
             self.command_opt = sys.argv[1].split(':')[1]
         else:
-            print("unrecognized command...")
-            self.help()
+            self.command = sys.argv[1]
 
         # Parse options
         if len(sys.argv) >= 3:
@@ -132,11 +139,15 @@ class QCompile:
         print("Available Commands:")
         print(" build")
         print("  build:<profile>\tBuild with specified profile")
-        print("  build:new\t\tCreate new build profile")
+        print("  build:new <name>\tCreate new build profile")
+        print("  build:del <profile>\tRemove specified profile")
         print("  build:list\t\tList build profiles")
         print(" map")
-        print("  map:new\t\tCreate new Map Profile")
+        print("  map:new <name> \tCreate new map Profile")
+        print("  map:del <profile>\tRemove specified profile")
         print("  map:list\t\tList map profiles")
+        print(" play")
+        print("  play <map_profile>\tPlay map without compilation")
 
     def isOptProfile(self, opt):
         if self.config.profileExists('builders', opt):
@@ -153,6 +164,9 @@ class Compiler:
     def __init__(self):
         pass
 
+    def runProfile(self, profile_name):
+        pass
+
         
 
 
@@ -160,6 +174,7 @@ class Compiler:
 =========================================================================== """
 def main():
     config_files = [
+        {"name": "config", "file": "qcompile_config.json"},
         {"name": "builders", "file": 'qcompile_builders.json'},
         {"name": "maps", "file": 'qcompile_maps.json'}
     ]
@@ -182,7 +197,7 @@ def main():
             print("Build profile does not exist!")
 
 
-    if app.command == 'map':
+    elif app.command == 'map':
         if app.command_opt == 'new':
             app.config.scaffoldNew('maps', app.option)
             print("Open the maps json file to configure new profile")
@@ -192,6 +207,9 @@ def main():
             print("Listing all MAP profiles")
             app.config.listMaps()
             sys.exit(0)
+    elif app.command == 'play':
+        print("Test that map!")
+        sys.exit(0)
 
 if __name__ == '__main__':
     sys.exit(main())
