@@ -119,14 +119,51 @@ The mod profile manages the location of the mod. It also supplies the compiler w
 
 
 #### Requirements
-There should not be any other than the python interpreter described above. I only used built in modules for this so its easy to setup and run.
+There should not be any other than the python interpreter described below. I only used built in modules for this so its easy to setup and run.
 ##### Python 3 Interpreter
 You will need to have a python 3 interpreter installed on your computer. And yes it does have to be version 3+. Most linux & mac based systems come wtih it installed. Check [RealPython](https://realpython.com/installing-python/ "RealPython") for installation procedures if you do not have it installed.
 
 #### Install
-You can either clone this repository, or download the current version here. copy the qruncer.py to your favorite mapping directory (quake directory)
+You can either clone this repository, or download the current version here. copy the qruncher.py to your favorite mapping directory (quake directory)
 
 ## Usage
+On windows just run the qruncher.py file from the command line. On MacOS an Unix variants you may need to make it executable by `chmod +x qruncher.py` or by running it as `python3 qruncher.py`
+
+The first time you run it, it will create the config file. 
+
+```bash
+Usage:
+  qcompile.py <command> <options>
+
+Examples:
+  (build mode) qcompile.py build:fast myFavoriteMap
+  (conf mode)  qcompile.py build:new buildProfileName
+
+Available Commands:
+ build
+  build:<name>		Build with specified profile
+  build:list		List build profiles
+  build:show <name>	Show specified build profile
+  build:new <name>	Create new build profile
+  build:del <name>	Remove specified build profile
+ map
+  map:list		List map profiles
+  map:show <name>	Show map profile
+  map:new <name> 	Create new map Profile
+  map:del <name>	Remove specified map profile
+ engine
+  engine:list		List engine profiles
+  engine:show <name>	Show engine profile
+  engine:new <name> 	Create new engine profile
+  engine:del <name> 	Remove specified engine profile
+ mod
+  mod:list		List mod profiles
+  mod:show <name>	Show specified mod profile
+  mod:new <name>	Create new mod profile
+  mod:del <name>	Remove specified profile
+ play
+  play <name>	Play map profile without compilation
+```
 
 ## Why did you make this? 
 This is the basic workflow for compiling/testing maps:
