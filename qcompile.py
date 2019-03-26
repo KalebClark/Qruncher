@@ -2,6 +2,8 @@ import re
 import os
 import sys
 import json
+import time
+from datetime import datetime, timedelta
 import subprocess
 
 """ =================================== QCConfig Class  =======================
@@ -55,20 +57,26 @@ class QCConfig:
 
     def profileExists(self, pType, profile_name):
         """ Check if profile already exists ===== """
-        for idx, profile in enumerate(self.config[pType]):
+        for profile in self.config[pType]:
             if profile['name'] == profile_name:
-                return idx
+                return True
         
         return False
 
-    def getProfile(self, pType, profile_name):
+    def getProfile(self, pType, profile_name, ret_index=False):
         """ Get profile ========================= """
-        idx = self.profileExists(pType, profile_name)
-        if not idx:
-            print(pType.capitalize() + " profile ("+profile_name+") does not exist")
-            return False
+        profile_index = None
+        for idx, profile in enumerate(self.config[pType]):
+            if profile['name'] == profile_name:
+                profile_index = idx
         
-        return self.config[pType][idx]
+        if profile_index == None:
+            raise Exception("Profile " + profile_name +" does not exist...")
+        
+        if ret_index:
+            return profile_index
+        else:
+            return self.config[pType][profile_index]
 
     def getDefaultProfile(self, pType):
         for profile in self.config[pType]:
@@ -109,7 +117,7 @@ class QCConfig:
 
     def deleteProfile(self, pType, profile_name):
         """ Delete Profile ====================== """
-        del_idx = self.profileExists(pType, profile_name)
+        del_idx = self.getProfile(pType, profile_name, True)
         if del_idx is not False:
             print("Deleting " + pType + " profile " + profile_name)
             self.config[pType].pop(del_idx)
@@ -129,8 +137,7 @@ class QCConfig:
             
     def showBuilders(self, profile_name):
         """ Show detailed build profile ========= """
-        idx = self.profileExists('builders', profile_name)
-        profile = self.config['builders'][idx]
+        profile = self.getProfile('builders', profile_name)
         print("Build Profile: " + profile['name'])
         for tool in profile['tools']:
             tool_path = tool['path']
@@ -156,8 +163,7 @@ class QCConfig:
     
     def showMaps(self, profile_name):
         """ Show map detail ===================== """
-        idx = self.profileExists('maps', profile_name)
-        mmap = self.config['maps'][idx]
+        mmap = self.getProfile('maps', profile_name)
         print("Map profile: " + mmap['name'])
         print("---------------------------------------")
         print("  Source: " + mmap['source'])
@@ -176,8 +182,7 @@ class QCConfig:
 
     def showEngines(self, profile_name):
         """ Show engine detail ================== """
-        idx = self.profileExists('engines', profile_name)
-        engine = self.config['engines'][idx]
+        engine = self.getProfile('engines', profile_name)
         print("Engine Profile: " + engine['name'])
         print("---------------------------------------")
         print("  Path: " + engine['path'])
@@ -198,8 +203,7 @@ class QCConfig:
 
     def showMods(self, profile_name):
         """ Show mod detail ===================== """
-        idx = self.profileExists('mods', profile_name)
-        mod = self.config['mods'][idx]
+        mod = self.getProfile('mods', profile_name)
         print("Mod profile: " + mod['name'])
         print("-----------------------------------------")
         print("  subdir: " + mod['subdir'])
@@ -284,13 +288,13 @@ class QCompile:
         print("  play <name>\tPlay map profile without compilation")
 
     def isProfile(self, profile_name):
-        if self.config.profileExists('builders', profile_name):
+        if self.config.profileExists('builders', profile_name) is not False:
             return True
-        elif self.config.profileExists('maps', profile_name):
+        elif self.config.profileExists('maps', profile_name) is not False:
             return True
-        elif self.config.profileExists('engines', profile_name):
+        elif self.config.profileExists('engines', profile_name) is not False:
             return True
-        elif self.config.profileExists('mods', profile_name):
+        elif self.config.profileExists('mods', profile_name) is not False:
             return True
 
         return False
@@ -302,10 +306,39 @@ class Compiler:
     def __init__(self):
         self.cfg = QCConfig('qcompile.json')
 
+    def timeSubProcess(self, args):
+        sdt = datetime.now()
+        start_time = sdt.microsecond
+        subprocess.run(args)
+        edt = datetime.now()
+        end_time = edt.microsecond
+
+        duration = edt - sdt
+        duration_s = duration.total_seconds()
+
+        splt = str(duration).split(':')
+        
+        return {
+            'h': splt[0],
+            'm': splt[1],
+            's': str(round(float(splt[2]),3))
+        }
+
+    def getFileStats(self, file_path):
+        try:
+            fs = os.stat(file_path)
+            fs_time = datetime.fromtimestamp(fs.st_mtime)
+            return {
+                "exists": str(True),
+                "size": str(round(fs.st_size / 1024))+"k",
+                "time": str(fs_time)
+            }
+        except FileNotFoundError as fnfe:
+            return {"exists": str(False), "size": '', "time": ''}
 
     def runBuild(self, opts):
         tool_path = self.cfg.config['config']['tool_path']
-        #base_path = self.cfg.config['config']['base_path']
+        base_path = self.cfg.config['config']['base_path']
 
         # Get Build Profile
         try:
@@ -332,49 +365,136 @@ class Compiler:
         except KeyError:
             mod = self.cfg.getDefaultProfile('mods')
 
-        print("BUILD: " + str(builder))
-        print("MAP: " + str(mmap))
-        print("ENGINE: " + str(engine))
-        print("MOD: " + str(mod))
+        # Setup Paths
+        map_full_path = mmap['source']
+        map_file_name = os.path.basename(map_full_path)
+        map_basename  = os.path.splitext(map_file_name)[0]
+        map_directory = os.path.dirname(map_full_path)+os.sep
+        bsp_full_path = map_directory + map_basename + ".bsp"
+        prt_full_path = map_directory + map_basename + ".prt"
+        lit_full_path = map_directory + map_basename + ".lit"
 
-        source = mmap['source']
-        map_filename = os.path.basename(source)
-        map_basename = os.path.splitext(map_filename)[0]
-        print(map_filename)
-        print(map_basename)
-        dest = mmap['dest'] + map_basename + ".bsp"
-        map_dest_path = mmap['dest']
-        print(map_dest_path)
+        # Handle output. If specified in MAP profile, override. Otherwise
+        # use MOD profile as output.
+        if not mmap['dest']:
+            bsp_destination = base_path + os.sep + mod['subdir'] + os.sep + "maps" + os.sep + map_basename + ".bsp"
+        else:
+            bsp_destination = mmap['dest'] + os.sep + map_basename + ".bsp"    
 
-        # for idx, tool in enumerate(builder['tools']):
-        #     cmd = [
-        #         tool_path + tool['name']
-        #     ] + tool['args']
-        #     if tool['name'] == 'qbsp':
-        #         cmd = cmd + [source, dest]
-        #     elif tool['name'] == 'light': 
-        #         cmd = cmd + [dest]
-        #     print(cmd)
+        # Change into map_directory for generation of log files in build dir.
+        os.chdir(map_directory)
 
+        # Create QBSP Command
         qbsp_idx = self.cfg.indexOfTool(opts['build'], 'qbsp')
+        qbsp_args = builder['tools'][qbsp_idx]['args']
         qbsp_cmd = [
-            tool_path + builder['tools'][qbsp_idx]['name']
-        ] + builder['tools'][qbsp_idx]['args'] + [source, dest]
+            tool_path + os.sep + builder['tools'][qbsp_idx]['name']
+        ] + qbsp_args + [map_full_path]
 
-        light_idx = self.cfg.indexOfTool(opts['build'], 'light')
-        light_cmd = [
-            tool_path + builder['tools'][light_idx]['name']
-        ] + builder['tools'][light_idx]['args'] + [dest]
-
+        # Create VIS Command
         vis_idx = self.cfg.indexOfTool(opts['build'], 'vis')
+        vis_args = builder['tools'][vis_idx]['args']
         vis_cmd = [
-            tool_path + builder['tools'][vis_idx]['name']
-        ] + [dest]
-        
-        subprocess.call(qbsp_cmd)
-        subprocess.call(light_cmd)
-        subprocess.call(vis_cmd)
+            tool_path + os.sep + builder['tools'][vis_idx]['name']
+        ] + vis_args + [bsp_full_path]
 
+        # Create LIGHT Command
+        light_idx = self.cfg.indexOfTool(opts['build'], 'light')
+        light_args = builder['tools'][light_idx]['args']
+        light_cmd = [
+            tool_path + os.sep + builder['tools'][light_idx]['name']
+        ] + light_args + [bsp_full_path]
+
+        # Run QBSP, VIS, LIGHT
+        qbsp_time = self.timeSubProcess(qbsp_cmd)
+
+        vis_time = self.timeSubProcess(vis_cmd)
+
+        light_time = self.timeSubProcess(light_cmd)
+
+        # Move bsp file to final destination
+        try:
+            os.remove(bsp_destination)
+        except OSError:
+            pass
+
+        os.rename(bsp_full_path, bsp_destination)
+
+        # Done Compiling. Check stats on files generated
+        map_fs = self.getFileStats(map_full_path)
+        bsp_fs = self.getFileStats(bsp_full_path)
+        prt_fs = self.getFileStats(prt_full_path)
+        lit_fs = self.getFileStats(lit_full_path)
+
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print("\nQCruncher File Report @\t"+current_time)
+        print("-----------------------------------------------")
+        print("File\tExists\t\tSize\tCreate Date/time")
+        print("-----------------------------------------------")
+        print(".map\t"+map_fs['exists']+"\t\t"+map_fs['size']+"\t"+map_fs['time'])
+        print(".bsp\t"+bsp_fs['exists']+"\t\t"+bsp_fs['size']+"\t"+bsp_fs['time'])
+        print(".prt\t"+prt_fs['exists']+"\t\t"+prt_fs['size']+"\t"+prt_fs['time'])
+        print(".lit\t"+lit_fs['exists']+"\t\t"+lit_fs['size']+"\t"+lit_fs['time'])
+
+        print("\nQCruncher Tools Report")
+        print("-----------------------------------------------")
+        print("Tool\tHrs\tMin\tSeconds\tArguments")
+        print("-----------------------------------------------")
+        print("QBSP:\t"+qbsp_time['h']+"\t"+qbsp_time['m']+"\t"+qbsp_time['s']+"\t"+" ".join(qbsp_args))
+        print("VIS :\t"+vis_time['h']+"\t"+vis_time['m']+"\t"+vis_time['s']+"\t"+" ".join(vis_args))
+        print("LIGHT:\t"+light_time['h']+"\t"+light_time['m']+"\t"+light_time['s']+"\t"+" ".join(light_args))
+
+        print("\nFinal Destination of bsp file: ")
+        print(bsp_destination)
+
+        # Run QUAKE!!!
+
+        # Check OS. If its 'darwin'(MacOS), some executables are in mac format,
+        # which is inside a folder. Need to use the "open" command on mac os to
+        # fire this off. Linux & windows are straight paths.
+        platform = sys.platform
+        engine_exe = None
+        engine_path = None
+        if platform == 'darwin':
+            # Does path exist?
+            if os.path.exists(engine['path']):
+                # Yes. full path or directory?
+                if os.path.isfile(engine['path']):
+                    # Full Path
+                    engine_path = engine['path']
+                    engine_exe = [engine['path']]
+                elif os.path.isdir(engine['path']):
+                    # Directory. Must have the .app already
+                    engine_path = engine['path']
+                    engine_exe = ['open'] + [engine_path, '--args']
+
+            else:
+                # Does not exist. Add .app and check again
+                if os.path.exists(engine['path']+".app"):
+                    # found it with .app
+                    engine_path = engine['path']+".app"
+                    engine_exe = ['open'] + [engine_path+".app", '--args']
+                else:
+                    # Just does not exist. Bail.
+                    print("Engine Executable does not exist. Exiting")
+                    sys.exit(0)
+        else:
+            # Onward to other OS's
+            if not os.path.exists(engine['path']):
+                print("Engine executable does not exist. Exiting")
+                sys.exit(0)
+            engine_path = engine['path']
+            engine_exe = engine['path']
+
+        engine_exe = engine_exe + engine['args'] + ['-basedir', base_path]
+
+        # Add mod
+        engine_exe = engine_exe + ['-game', mod['subdir']]
+
+        # Add Map
+        engine_exe = engine_exe + ['+map', map_basename+".bsp"]
+        print(engine_exe)
+        subprocess.run(engine_exe)
         sys.exit(0)
 
         
@@ -404,6 +524,7 @@ def main():
         # to use ALL defaults on everything except the build.
         if cmd == 'build' and app.isProfile(opt):
             app.compiler.runBuild(app.opts)
+            print("Proceed to building")
 
         # Handle builds
         if cmd == 'build':
@@ -482,7 +603,8 @@ def main():
 
     if len(app.opts) > 2: # Build Mode
         print("Build Mode")
-        del app.opts['profile_name']
+        if 'profile_name' in app.opts:
+            del app.opts['profile_name']
         app.compiler.runBuild(app.opts)
 
     sys.exit(0)
