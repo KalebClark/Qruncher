@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import re
 import os
 import sys
@@ -34,10 +35,10 @@ class QCConfig:
             scaffold = {
                 "name": name,
                 "source": "",
-                "dest": ""
+                "dest": False
             }
         elif pType == 'engines':
-            scaffold = {"name": name, "default": False, "path":'',"base_dir":'', "args": []}
+            scaffold = {"name": name, "default": False, "path":'', "args": []}
         elif pType == 'mods':
             scaffold = {"name": name, "default": False, "subdir": ''}
 
