@@ -14,7 +14,14 @@ Qruncher manages the entire task of compiling your map. All the components of th
 The build profile manages the three basic tools for compiling a map. QBSP, VIS and LIGHT. It stores the executable path so you can have different executables in different profiles. It also stores all of the command line options for each of the three tools.
 
 This can be very useful for having a profile for debugging, testing and release. In debugging you may have options that are NOT for release such as -dirtdebug.  Your release compile might have everything cranked up and you dont want to do that every time you squonk a brush over 16 units. 
-##### Example profile:
+##### Structure
+- **name**: (String) The name of the profile. Must be unique.
+- **default**: (Boolean) Only one can be True, and it will be default. All others false.
+- **tools**: (Array)
+-**name**: (String) The name of the tool. Must be unique.
+-**path**: (String) Path to the tool. If this is set as a full path to executable, it will be used. If it is set to 'false', then 'name' will be appended to 'tool_path' and used in the compiler. This of 'false' as the default.
+-**args**: (Array) Each argument for the tool should have its own entry in this array. Even for arguments that have multiple entries such as '-threads 6'
+##### Example BUILD Profile:
 ```json
 {
       "name": "default",
@@ -22,7 +29,7 @@ This can be very useful for having a profile for debugging, testing and release.
       "tools": [
         {
           "name": "qbsp",
-          "path": false,
+          "path": "c:\quake\tools\ericw\qbsp.exe",
           "args": [
             "-noverbose",
             "-bsp2"
@@ -30,7 +37,7 @@ This can be very useful for having a profile for debugging, testing and release.
         },
         {
           "name": "light",
-          "path": false,
+          "path": "/opt/games/quake/tools/qbsp",
           "args": [
             "-extra4",
             "-bouncedebug"
@@ -49,8 +56,49 @@ This can be very useful for having a profile for debugging, testing and release.
 ```
 
 ### Map Profile
+The map profile manages the locations of the .map file your editor produces. It stores the 'source' and 'destination'.
+
+Many people work on multiple maps, and not just one till its done. The map profile saves you the time of having to either select the .map file from a file selector window, or typing out the full path when you want to switch between maps you are working on.
+
+##### Structure
+- **name**: (String) The name of the profile. Must be unique.
+- **default**: (Boolean) Only one can be True, and it will be default. All others false.
+- **source**: (String) Full path to the .map file. 
+- **dest**: (String/False): If this is NOT 'false', the compiler will use this as the destination of where it copies the .bsp file to when everything is done. If it is set to 'false' the compiler will copy the .bsp to the correctly location as specified by the 'base_path' and **mod** profile.
+
+##### Example MAP profile
+```json
+{
+      "name": "default",
+      "default": false,
+      "source": "c:\quake\map-dev\radical.map",
+      "dest": false
+}
+```
 
 ### Engine Profile
+The engine profile manages the path to the executable and the OPTIONAL command line arguments. The MANDATORY command line arguments for loading a map directly such as -basedir +map (and -game if using a mod) are all handled by qruncher. 
+
+Having multiple engine profiles allows you to easily test your map with different engines by a single command line switch.
+
+##### Structure
+- **name**: (String) Name of the profile. Must be unique.
+- **default**: (Boolean) Only one can be True, and it will be default. All others false.
+- **path**: (String) The full path to the engine executable.
+- **args**: (Array) Each argument for the tool should have its own entry in this array. **NOTE:** +map, -basedir, -game will all be added by qruncher. You only need to specify optional arguments such as windowed, resolution etc. 
+
+##### Example ENGINE Profile
+```json
+    {
+      "name": "quakespasm",
+      "default": true,
+      "path": "/opt/games/quake/QuakeSpasm-SDL2",
+      "args": [
+        "-noipx"
+      ]
+    }
+
+```
 
 ### Mod Profile
 
