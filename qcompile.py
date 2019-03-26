@@ -305,7 +305,7 @@ class Compiler:
 
     def runBuild(self, opts):
         tool_path = self.cfg.config['config']['tool_path']
-        base_path = self.cfg.config['config']['base_path']
+        #base_path = self.cfg.config['config']['base_path']
 
         # Get Build Profile
         try:
@@ -376,37 +376,6 @@ class Compiler:
         subprocess.call(vis_cmd)
 
         sys.exit(0)
-        tool_path = self.cfg.config['config']['tool_path']
-        base_path = self.cfg.config['config']['base_path']
-
-        # Build Profile
-        idx = self.cfg.profileExists('builders', build_name)
-        builder = self.cfg.config['builders'][idx]
-
-        # Map Profile
-        idx = self.cfg.profileExists('maps', map_name)
-        mmap = self.cfg.config['maps'][idx]
-
-        # Run QBSP
-        qbsp_cmd = [
-            tool_path + builder['tools'][0]['name']
-        ]
-        qbsp_cmd = qbsp_cmd + builder['tools'][0]['args']
-
-        source = mmap['source']
-        dest = mmap['dest']
-
-        qbsp_cmd = qbsp_cmd + [source, dest]
-
-        print(qbsp_cmd)
-        subprocess.call(qbsp_cmd)
-        # Run LIGHT
-
-        # Run VIS
-
-        # Copy map 
-
-        # Run Game
 
         
 
@@ -416,7 +385,6 @@ class Compiler:
 def main():
     config_file = 'qcompile.json'
     app = QCompile(config_file)
-    detail = False
 
     print(len(app.opts))
     print(app.opts)
