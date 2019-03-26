@@ -10,7 +10,7 @@ Qruncher manages the entire task of compiling your map. All the components of th
 - **Engine:** The engine profile saves different engines so you can test your map with multiple engines easily.
 - **Mod:** The mod profile saves information about the mod. Useful for managing multiple 'mods' along with vanilla.
 
-### Build Profile
+## Build Profile
 The build profile manages the three basic tools for compiling a map. QBSP, VIS and LIGHT. It stores the executable path so you can have different executables in different profiles. It also stores all of the command line options for each of the three tools.
 
 This can be very useful for having a profile for debugging, testing and release. In debugging you may have options that are NOT for release such as -dirtdebug.  Your release compile might have everything cranked up and you dont want to do that every time you squonk a brush over 16 units. 
@@ -55,7 +55,7 @@ This can be very useful for having a profile for debugging, testing and release.
     }
 ```
 
-### Map Profile
+## Map Profile
 The map profile manages the locations of the .map file your editor produces. It stores the 'source' and 'destination'.
 
 Many people work on multiple maps, and not just one till its done. The map profile saves you the time of having to either select the .map file from a file selector window, or typing out the full path when you want to switch between maps you are working on.
@@ -76,7 +76,7 @@ Many people work on multiple maps, and not just one till its done. The map profi
 }
 ```
 
-### Engine Profile
+## Engine Profile
 The engine profile manages the path to the executable and the OPTIONAL command line arguments. The MANDATORY command line arguments for loading a map directly such as -basedir +map (and -game if using a mod) are all handled by qruncher. 
 
 Having multiple engine profiles allows you to easily test your map with different engines by a single command line switch.
@@ -97,11 +97,24 @@ Having multiple engine profiles allows you to easily test your map with differen
         "-noipx"
       ]
     }
-
 ```
 
 ### Mod Profile
+The mod profile manages the location of the mod. It also supplies the compiler with the location to copy the .bsp file to when compilation is complete. You should always have a profile setup for vanilla with a subdir of **id1**. There is no default for this. Vanilla is considered a **mod**
 
+##### Structure
+- **name**: (String) The name of the profile. Must be unique.
+- **default**: (Boolean) Only one can be True, and it will be default. All others false.
+- **subdir**: (String) The subdirectory under **base_path** where the mod is installed. Example for Arcane Dimensions: `"subdir": "ad"`
+
+##### Example MOD Profile
+```json
+    {
+      "name": "ArcaneDimensions",
+      "default": true,
+      "subdir": "ad"
+    }
+```
 
 
 ## Why did you make this? 
