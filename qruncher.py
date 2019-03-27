@@ -778,7 +778,7 @@ class QCompiler:
                 if os.path.exists(engine['path']+".app"):
                     # found it with .app
                     engine_path = engine['path']+".app"
-                    engine_exe = ['open'] + [engine_path+".app", '--args']
+                    engine_exe = ['open'] + [engine_path, '--args']
                 else:
                     # Just does not exist. Bail.
                     print("Engine Executable does not exist. Exiting")
