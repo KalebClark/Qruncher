@@ -54,7 +54,9 @@
         {
           "name": "vis",
           "path": false,
-          "args": []
+          "args": [
+            "-v"
+          ]
         }
       ]
     }
