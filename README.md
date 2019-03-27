@@ -130,9 +130,11 @@ You can either clone this repository, or download the current version here. copy
 On windows just run the qruncher.py file from the command line. On MacOS an Unix variants you may need to make it executable by `chmod +x qruncher.py` or by running it as `python3 qruncher.py`
 
 To run on windows platforms just specify the name of the program
+
 `c:> qruncher.py`
 
 To run on unix like platforms (linux/MacOS/AIX) you will need a `./`
+
 `$ ./qruncher.py`
 
 The first time you run it, it will create the config file. 
@@ -142,21 +144,27 @@ The following will run with all defaults
 `qruncher.py build:default`
 
 The following will run with build profile **fast** and map profile **radmap**
+
 `qruncher.py build:fast map:radmap`
 
 The following shows all possible profiles being used
+
 `qruncher.py build:fast map:radmap engine:quakespasm mod:arcane`
 
 Add new build profile named **release**
+
 `qruncher.py build:new release`
 
 List all map profiles
+
 `qruncher.py map:list`
 
 Show details of specific engine profile
+
 `qruncher.py engine:show quakespasm`
 
 To see a list of all help, run with no options
+
 `qruncher.py`
 
 
