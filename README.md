@@ -129,41 +129,36 @@ You can either clone this repository, or download the current version here. copy
 ## Usage
 On windows just run the qruncher.py file from the command line. On MacOS an Unix variants you may need to make it executable by `chmod +x qruncher.py` or by running it as `python3 qruncher.py`
 
+To run on windows platforms just specify the name of the program
+`c:> qruncher.py`
+
+To run on unix like platforms (linux/MacOS/AIX) you will need a `./`
+`$ ./qruncher.py`
+
 The first time you run it, it will create the config file. 
+##### Examples
+The following will run with all defaults
+`qruncher.py build:default`
 
-```bash
-Usage:
-  qcompile.py <command> <options>
+The following will run with build profile **fast** and map profile **radmap**
+`qruncher.py build:fast map:radmap`
 
-Examples:
-  (build mode) qcompile.py build:fast myFavoriteMap
-  (conf mode)  qcompile.py build:new buildProfileName
+The following shows all possible profiles being used
+`qruncher.py build:fast map:radmap engine:quakespasm mod:arcane`
 
-Available Commands:
- build
-  build:<name>		Build with specified profile
-  build:list		List build profiles
-  build:show <name>	Show specified build profile
-  build:new <name>	Create new build profile
-  build:del <name>	Remove specified build profile
- map
-  map:list		List map profiles
-  map:show <name>	Show map profile
-  map:new <name> 	Create new map Profile
-  map:del <name>	Remove specified map profile
- engine
-  engine:list		List engine profiles
-  engine:show <name>	Show engine profile
-  engine:new <name> 	Create new engine profile
-  engine:del <name> 	Remove specified engine profile
- mod
-  mod:list		List mod profiles
-  mod:show <name>	Show specified mod profile
-  mod:new <name>	Create new mod profile
-  mod:del <name>	Remove specified profile
- play
-  play <name>	Play map profile without compilation
-```
+Add new build profile named **release**
+`qruncher.py build:new release`
+
+List all map profiles
+`qruncher.py map:list`
+
+Show details of specific engine profile
+`qruncher.py engine:show quakespasm`
+
+To see a list of all help, run with no options
+`qruncher.py`
+
+
 
 ## Why did you make this? 
 This is the basic workflow for compiling/testing maps:
