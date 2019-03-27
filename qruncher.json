@@ -1,0 +1,52 @@
+{
+  "config": {
+    "base_path": "/Volumes/MACBOOK-EXT/Games/quake-play/",
+    "tool_path": "/Volumes/MACBOOK-EXT/Games/quake-play/tools/ericw/bin"
+  },
+  "builders": [
+    {
+      "name": "default",
+      "default": true,
+      "tools": [
+        {
+          "name": "qbsp",
+          "path": false,
+          "args": []
+        },
+        {
+          "name": "light",
+          "path": false,
+          "args": []
+        },
+        {
+          "name": "vis",
+          "path": false,
+          "args": []
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "name": "default",
+      "default": true,
+      "source": "/Volumes/MACBOOK-EXT/Games/quake-play/map-dev/broadway.map",
+      "dest": false
+    }
+  ],
+  "engines": [
+    {
+      "name": "default",
+      "default": true,
+      "path": "/Volumes/MACBOOK-EXT/Games/quake-play/QuakeSpasm-SDL2",
+      "args": []
+    }
+  ],
+  "mods": [
+    {
+      "name": "default",
+      "default": true,
+      "subdir": "id1"
+    }
+  ]
+}
