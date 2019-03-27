@@ -115,6 +115,10 @@ The mod profile manages the location of the mod. It also supplies the compiler w
       "subdir": "ad"
     }
 ```
+
+### Note for windows users
+The way json works, you have to escape all of your paths. If you have `c:\quake\tools` for a path, you will have to escape the backslashes with `\\` ie: `c:\\quake\\tools`
+
 ## Installation
 
 
