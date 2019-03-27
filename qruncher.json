@@ -1,6 +1,6 @@
 {
   "config": {
-    "base_path": "/Volumes/MACBOOK-EXT/Games/quake-play",
+    "base_path": "/Volumes/MACBOOK-EXT/Games/quake-play/",
     "tool_path": "/Volumes/MACBOOK-EXT/Games/quake-play/tools/ericw/bin"
   },
   "builders": [
@@ -11,40 +11,7 @@
         {
           "name": "qbsp",
           "path": false,
-          "args": [
-            "-noverbose",
-            "-bsp2"
-          ]
-        },
-        {
-          "name": "light",
-          "path": false,
-          "args": [
-            "-extra4",
-            "-bouncedebug"
-          ]
-        },
-        {
-          "name": "vis",
-          "path": false,
-          "args": [
-            "-noambient",
-            "-level 3"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "fast",
-      "default": false,
-      "tools": [
-        {
-          "name": "qbsp",
-          "path": false,
-          "args": [
-            "-noverbose",
-            "-bsp2"
-          ]
+          "args": []
         },
         {
           "name": "light",
@@ -54,9 +21,7 @@
         {
           "name": "vis",
           "path": false,
-          "args": [
-            "-v"
-          ]
+          "args": []
         }
       ]
     }
@@ -64,19 +29,7 @@
   "maps": [
     {
       "name": "default",
-      "default": false,
-      "source": "",
-      "dest": false
-    },
-    {
-      "name": "foobar",
       "default": true,
-      "source": "/Volumes/MACBOOK-EXT/Games/quake-play/map-dev/tentwentyfour/tentwentyfour.map",
-      "dest": "/Volumes/MACBOOK-EXT/Games/quake-play/id1/maps"
-    },
-    {
-      "name": "broadway",
-      "default": false,
       "source": "/Volumes/MACBOOK-EXT/Games/quake-play/map-dev/broadway.map",
       "dest": false
     }
@@ -84,56 +37,16 @@
   "engines": [
     {
       "name": "default",
-      "default": false,
-      "path": "",
-      "base_dir": "",
-      "args": []
-    },
-    {
-      "name": "quakespasm",
       "default": true,
       "path": "/Volumes/MACBOOK-EXT/Games/quake-play/QuakeSpasm-SDL2",
-      "base_dir": "",
-      "args": [
-        "-window"
-      ]
-    },
-    {
-      "name": "qsapp",
-      "default": false,
-      "path": "/Volumes/MACBOOK-EXT/Games/quake-play/QuakeSpasm-SDL2.app",
-      "base_dir": "",
-      "args": [
-        "-window"
-      ]
-    },
-    {
-      "name": "qspath",
-      "default": false,
-      "path": "/Volumes/MACBOOK-EXT/Games/quake-play/QuakeSpasm-SDL2.app/Contents/MacOS/QuakeSpasm",
-      "base_dir": "",
-      "args": [
-        "-window"
-      ]
-    },
-    {
-      "name": "markv",
-      "default": false,
-      "path": "/Volumes/MACBOOK-EXT/Games/quake-play/Quake.app",
-      "base_dir": "",
       "args": []
     }
   ],
   "mods": [
     {
       "name": "default",
-      "default": false,
-      "subdir": "id1"
-    },
-    {
-      "name": "Arcane",
       "default": true,
-      "subdir": "ad"
+      "subdir": "id1"
     }
   ]
 }

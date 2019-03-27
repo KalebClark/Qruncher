@@ -4,6 +4,8 @@ import os
 import sys
 import json
 import time
+import shutil
+import argparse
 from datetime import datetime, timedelta
 import subprocess
 
@@ -50,7 +52,7 @@ class QConfig:
             # BUILD Scaffold
             scaffold = {
                 "name": profile_name,
-                "default": False,
+                "default": True,
                 "tools": [
                     {"name": "qbsp", "path": False, "args": []},
                     {"name": "light", "path": False, "args": []},
@@ -61,15 +63,16 @@ class QConfig:
             # MAP Scaffold
             scaffold = {
                 "name": profile_name,
+                "default": True,
                 "source": "",
                 "dest": False
             }
         elif pType == 'engines':
             # ENGINE Scaffold
-            scaffold = {"name": profile_name, "default": False, "path":'', "args": []}
+            scaffold = {"name": profile_name, "default": True, "path":'', "args": []}
         elif pType == 'mods':
             # MOD Scaffold
-            scaffold = {"name": profile_name, "default": False, "subdir": ''}
+            scaffold = {"name": profile_name, "default": True, "subdir": 'id1'}
 
         # Check to see if default profile already exists.
         if not self.profileExists(pType, profile_name):
@@ -345,7 +348,6 @@ class QConfig:
         print("Engine Profile: " + engine['name'])
         print("---------------------------------------")
         print("  Path: " + engine['path'])
-        print("  base_dir: " + engine['base_dir'])
         print("  args: " + " ".join(engine['args']))
 
     def listMods(self):
@@ -398,7 +400,7 @@ class QCompile:
         Parsed arguments are prepared as class variables
         =============================================== """
         del sys.argv[0]
-        print("# of args: "+str(len(sys.argv)))
+        # print("# of args: "+str(len(sys.argv)))
         
         # Check to see if there are any args.
         if len(sys.argv) == 0:
@@ -457,7 +459,8 @@ class QCompile:
         print("Usage:")
         print("  qruncher.py <command> <options>\n")
         print("Examples:")
-        print("  (build mode) qruncher.py build:fast myFavoriteMap")
+        print("  (build mode) qruncher.py build:fast map:radmap")
+        print("  (all profiles) qruncher.py build:fast map:radmap engine:quakespasm mod:ArcaneDimensions")
         print("  (conf mode)  qruncher.py build:new buildProfileName\n")
         print("Available Commands:")
 
@@ -544,7 +547,7 @@ class QCompiler:
             subprocess.run(args)
         except FileNotFoundError as fnfe:
             print(str(fnfe))
-            print(args)
+            # print(args)
             sys.exit(1)
 
         edt = datetime.now()
@@ -618,6 +621,7 @@ class QCompiler:
 
 
     def runBuild(self, opts):
+        # print(opts)
         """ ===============================================
         Run the build process. This is it!
 
@@ -680,7 +684,7 @@ class QCompiler:
         # Full path to .lit file (/path/to/awesomemap.lit)
         lit_full_path = map_directory + map_basename + ".lit"
         """ End Setup Paths =========================== """
-
+        
         """ Handle output destination. If dest is specified in MAP profile
         use that. If not specified in MAP profile, use MOD profile as output
         =============================================== """
@@ -710,6 +714,33 @@ class QCompiler:
         # executable + args + path_to_.bsp_file
         light_cmd = [light['path']] + light['args'] + [bsp_full_path]
 
+        """ Just about ready to run! ======================
+        Lets just check that all files are in place.
+        =============================================== """
+        # map file
+        try:
+            os.path.exists(map_full_path)
+        except FileNotFoundError:
+            print("ERROR: .map file not found: "+map_full_path)
+
+        # qbsp exe
+        try:
+            os.path.exists(qbsp['path'])
+        except FileNotFoundError:
+            print("ERROR: qbsp not found: "+qbsp['path'])
+
+        # vis exe
+        try:
+            os.path.exists(vis['path'])
+        except FileNotFoundError:
+            print("ERROR: vis not found: "+vis['path'])
+
+        # light exe
+        try:
+            os.path.exists(light['path'])
+        except FileNotFoundError:
+            print("Error: light not found: "+light['path'])
+
         # Run QBSP, VIS, LIGHT
         qbsp_time = self.runTool(qbsp_cmd)
 
@@ -723,7 +754,10 @@ class QCompiler:
         except OSError:
             pass
 
-        os.rename(bsp_full_path, bsp_destination)
+        try:
+            shutil.copy(bsp_full_path, bsp_destination)
+        except FileNotFoundError:
+            print("shit")
 
         # Done Compiling. Check stats on files generated
         map_fs = self.getFileStats(map_full_path)
@@ -750,9 +784,16 @@ class QCompiler:
         print("LIGHT:\t"+light_time['h']+"\t"+light_time['m']+"\t"+light_time['s']+"\t"+" ".join(light['args']))
 
         print("\nFinal Destination of bsp file: ")
-        print(bsp_destination)
+        try:
+            os.path.exists(bsp_destination)
+            print(bsp_destination)
+        except FileNotFoundError:
+            print("ERROR: .bsp file did not make it to final destination: "+bsp_destination)
 
         # Run QUAKE!!!
+
+        # Check for --nogame
+
 
         # Check OS. If its 'darwin'(MacOS), some executables are in mac format,
         # which is inside a folder. Need to use the "open" command on mac os to
@@ -798,7 +839,6 @@ class QCompiler:
 
         # Add Map
         engine_exe = engine_exe + ['+map', map_basename+".bsp"]
-        print(engine_exe)
         subprocess.run(engine_exe)
         sys.exit(0)
 
