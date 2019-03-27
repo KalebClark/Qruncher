@@ -830,7 +830,7 @@ class QCompiler:
                 print("Engine executable does not exist. Exiting")
                 sys.exit(0)
             engine_path = engine['path']
-            engine_exe = engine['path']
+            engine_exe = [engine['path']]
 
         engine_exe = engine_exe + engine['args'] + ['-basedir', base_path]
 
@@ -838,7 +838,7 @@ class QCompiler:
         engine_exe = engine_exe + ['-game', mod['subdir']]
 
         # Add Map
-        engine_exe = engine_exe + ['+map', map_basename+".bsp"]
+        engine_exe = engine_exe + ['+map', map_basename]
         subprocess.run(engine_exe)
         sys.exit(0)
 
