@@ -95,7 +95,6 @@
       "path": "/Volumes/MACBOOK-EXT/Games/quake-play/QuakeSpasm-SDL2",
       "base_dir": "",
       "args": [
-        "-fuckme",
         "-window"
       ]
     },
